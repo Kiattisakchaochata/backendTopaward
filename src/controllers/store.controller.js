@@ -418,7 +418,18 @@ export const updateStore = async (req, res, next) => {
 }
       if (description !== undefined) data.description = description;
       if (address !== undefined) data.address = address;
-      if (social_links !== undefined) data.social_links = social_links;
+      // ✅ parse ให้เป็น object เสมอ (เหมือนใน createStore)
+if (social_links !== undefined) {
+  let socialLinksVal = social_links;
+  try {
+    if (typeof social_links === 'string' && social_links.trim() !== '') {
+      socialLinksVal = JSON.parse(social_links);
+    }
+  } catch {
+    // ถ้า parse ไม่ได้ ก็เก็บตามที่ส่งมา (string) แต่ควรหลีกเลี่ยง
+  }
+  data.social_links = socialLinksVal;
+}
       if (category_id) data.category_id = category_id;
       if (coverImageUrl) data.cover_image = coverImageUrl;
       if (newOrder !== null) data.order_number = newOrder;
