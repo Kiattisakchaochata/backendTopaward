@@ -79,5 +79,35 @@ app.use('/api/videos', publicVideoRoutes);
 
 // Cron
 startCronJobs();
+app.get('/test/google', (_req, res) => {
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  res.send(`
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Google ID Token Test</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      function handleCredentialResponse(resp) {
+        console.log('ID_TOKEN:', resp.credential);
+        // แสดงบนหน้าให้คัดลอกง่าย ๆ
+        document.getElementById('out').textContent = resp.credential;
+      }
+    </script>
+  </head>
+  <body style="font-family: ui-sans-serif, system-ui">
+    <h2>Google ID Token Test</h2>
+    <p>ลงชื่อเข้าใช้แล้วคัดลอก ID Token ที่ด้านล่างไปใส่ใน Postman</p>
+    <div id="g_id_onload"
+      data-client_id="${process.env.GOOGLE_CLIENT_ID}"
+      data-callback="handleCredentialResponse"
+      data-auto_prompt="false"></div>
+    <div class="g_id_signin" data-type="standard"></div>
+    <pre id="out" style="margin-top:16px; padding:12px; border:1px solid #ddd; border-radius:8px; overflow:auto;"></pre>
+  </body>
+</html>
+  `);
+});
 
 export default app;

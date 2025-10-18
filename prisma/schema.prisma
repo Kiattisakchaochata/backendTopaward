@@ -17,6 +17,10 @@ enum Role {
   USER
   ADMIN
 }
+enum OAuthProvider {
+  GOOGLE
+  FACEBOOK
+}
 
 enum Weekday {
   MON
@@ -71,7 +75,9 @@ model User {
   id            String   @id @default(cuid())
   name          String   @db.VarChar(191)
   email         String   @unique
-  password_hash String
+  password_hash String?
+  picture        String?   @db.VarChar(512)
+  email_verified DateTime?
   role          Role     @default(USER)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
@@ -79,6 +85,23 @@ model User {
   reviews       Review[]
   reviewReplies ReviewReply[]
   imageRatings  ImageRating[]
+  oauthAccounts OAuthAccount[]
+}
+model OAuthAccount {
+  id                    String         @id @default(cuid())
+  user_id               String
+  provider              OAuthProvider
+  provider_account_id   String         @db.VarChar(255) // เช่น Google sub / Facebook id
+  access_token          String?        @db.Text
+  refresh_token         String?        @db.Text
+  expires_at            DateTime?
+  created_at            DateTime       @default(now())
+  updated_at            DateTime       @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([provider, provider_account_id]) // ป้องกันซ้ำจากผู้ให้บริการเดียวกัน
+  @@index([user_id, provider])
 }
 
 // ----------------------
