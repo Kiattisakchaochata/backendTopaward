@@ -2,6 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import healthRoute from "./routes/health.route.js";
 
 import reviewRoutes from './routes/review.route.js';
 import authRoute from './routes/auth.route.js';
@@ -53,6 +54,7 @@ app.options('*', cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/health", healthRoute);
 
 // Routes
 app.use('/api/admin/banners', bannerRoute);
