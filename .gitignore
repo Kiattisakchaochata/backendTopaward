@@ -3,3 +3,5 @@ node_modules/
 temp-pic/*
 !temp-pic/.gitkeep
 /src/generated/prisma
+.DS_Store
+temp-pic/
