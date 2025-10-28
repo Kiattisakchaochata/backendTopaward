@@ -1,4 +1,4 @@
-//src/app.js
+// src/app.js
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -24,28 +24,31 @@ import seoPublicRoutes from './routes/public/seo.public.route.js';
 import adminTrackingRoutes from './routes/admin/tracking.admin.routes.js';
 import publicTrackingRoutes from './routes/public/tracking.public.routes.js';
 
-
-// ⬇⬇⬇ เพิ่ม public videos route
+// ⬇⬇⬇ public videos route
 import publicVideoRoutes from './routes/public/video.public.route.js';
 
 const app = express();
 
-// CORS allow-list
+/** CORS allow-list */
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:5174',
+  'https://10topawards.com',
+  'https://www.10topawards.com',
   process.env.CORS_ORIGIN,
 ].filter(Boolean);
 
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    // อนุญาตเครื่องมือ/งานเบื้องหลังที่ไม่มี header Origin
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
     return callback(new Error(`Not allowed by CORS: ${origin}`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
 };
 
 app.use(cors(corsOptions));
@@ -54,9 +57,11 @@ app.options('*', cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Health
 app.use("/api/health", healthRoute);
 
-// Routes
+// Admin/Public Routes
 app.use('/api/admin/banners', bannerRoute);
 app.use('/api/banners', publicBannerRoute);
 app.use('/api/admin/stores', storeAdminRoute);
@@ -75,13 +80,13 @@ app.use('/api/search', searchPublicRoute);
 app.use('/api/admin/seo', seoAdminRoutes);
 app.use('/api/public/seo', seoPublicRoutes);
 
-
-
-// ⬇⬇⬇ เมานต์ public endpoint สำหรับหน้าเว็บเรียก
+// public videos
 app.use('/api/videos', publicVideoRoutes);
 
 // Cron
 startCronJobs();
+
+// GSI test page (optional)
 app.get('/test/google', (_req, res) => {
   res.set('Content-Type', 'text/html; charset=utf-8');
   res.send(`
@@ -94,7 +99,6 @@ app.get('/test/google', (_req, res) => {
     <script>
       function handleCredentialResponse(resp) {
         console.log('ID_TOKEN:', resp.credential);
-        // แสดงบนหน้าให้คัดลอกง่าย ๆ
         document.getElementById('out').textContent = resp.credential;
       }
     </script>
